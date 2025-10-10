@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+{% if current_user.role == 'store' %}
+<div class="p-4 mb-4 bg-body-tertiary rounded-3">
+    <h2>Add New Product</h2>
+    <form action="{{ url_for('dashboard') }}" method="POST">
+        <div class="row g-2 mb-2">
+            <div class="col-md"><div class="form-floating"><input type="text" class="form-control" id="name" name="name" placeholder="Product Name" required><label for="name">Product Name</label></div></div>
+            <div class="col-md"><div class="form-floating"><input type="text" class="form-control" id="brand" name="brand" placeholder="Brand"><label for="brand">Brand</label></div></div>
+            <div class="col-md"><div class="form-floating"><input type="text" class="form-control" id="barcode" name="barcode" placeholder="Barcode"><label for="barcode">Barcode</label></div></div>
+        </div>
+        <div class="row g-2">
+            <div class="col-md"><div class="form-floating"><input type="text" class="form-control" id="category" name="category" placeholder="Category"><label for="category">Category</label></div></div>
+            <div class="col-md"><div class="form-floating"><input type="number" class="form-control" id="size_ml" name="size_ml" placeholder="Size (ml)" required><label for="size_ml">Size (ml)</label></div></div>
+            <div class="col-md"><div class="form-floating"><input type="number" step="0.01" class="form-control" id="price" name="price" placeholder="Price" required><label for="price">Price ($)</label></div></div>
+            <div class="col-md"><div class="form-floating"><input type="number" class="form-control" id="stock_quantity" name="stock_quantity" placeholder="Initial Stock" required><label for="stock_quantity">Initial Stock</label></div></div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Add Product</button>
+    </form>
+</div>
+{% endif %}
+
+<h2 class="mt-4">Current Inventory</h2>
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Barcode</th>
+            <th>Name</th>
+            <th>Brand</th>
+            <th>Price</th>
+            <th>Current Stock</th>
+            {% if current_user.role == 'store' %}
+              <th>Add Stock</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr class="align-middle">
+            <td><span class="font-monospace">{{ product.barcode or 'N/A' }}</span></td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.brand }}</td>
+            <td>${{ "%.2f"|format(product.price) }}</td>
+            <td>
+                {% if product.stock_quantity < 10 %}
+                    <span class="badge bg-danger">{{ product.stock_quantity }}</span>
+                {% else %}
+                    <span class="badge bg-success">{{ product.stock_quantity }}</span>
+                {% endif %}
+            </td>
+            {% if current_user.role == 'store' %}
+            <td>
+                <form action="{{ url_for('update_stock') }}" method="POST" class="d-flex">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <input type="number" name="add_stock" class="form-control form-control-sm" style="width: 80px;" min="1" required>
+                    <button type="submit" class="btn btn-secondary btn-sm ms-2">Add</button>
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="7" class="text-center">No products in inventory yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

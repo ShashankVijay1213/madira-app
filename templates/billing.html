@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Billing{% endblock %}
+{% block content %}
+<div class="row g-5">
+    <div class="col-md-5 col-lg-4">
+        <h4 class="mb-3">Scan Barcode or Search</h4>
+        <div class="position-relative">
+            <input type="text" id="productSearch" class="form-control" placeholder="Scan or type name..." autofocus>
+            <div id="searchResults" class="list-group position-absolute w-100" style="z-index: 1000;"></div>
+        </div>
+    </div>
+    <div class="col-md-7 col-lg-8">
+        </div>
+</div>
+
+<script>
+    let allProducts = [];
+    let billItems = {}; 
+    const searchInput = document.getElementById('productSearch');
+    // ... (other DOM element variables)
+
+    async function fetchProducts() { /* ... same as before ... */ }
+
+    function renderSearchResults(query) { /* ... same as before ... */ }
+
+    function addProductToBill(productId) { /* ... same as before ... */ }
+    
+    function updateQuantity(productId, newQuantity) { /* ... same as before ... */ }
+
+    function renderBill() { /* ... same as before ... */ }
+    
+    async function processBill() { /* ... same as before ... */ }
+
+    // --- NEW: Function to handle barcode scan ---
+    function findAndAddByBarcode(barcode) {
+        const product = allProducts.find(p => p.barcode === barcode);
+        if (product) {
+            addProductToBill(product.id);
+            searchInput.value = ''; // Clear input
+            searchResults.innerHTML = '';
+        } else {
+            // If not found by barcode, maybe it's a name search
+            const namedProduct = allProducts.find(p => p.name.toLowerCase().includes(barcode.toLowerCase()));
+            if(namedProduct) addProductToBill(namedProduct.id);
+            else alert('Product not found!');
+        }
+    }
+
+    // --- EVENT LISTENERS (Updated) ---
+    searchInput.addEventListener('input', () => renderSearchResults(searchInput.value));
+    
+    // Listen for Enter key (from scanner or manual press)
+    searchInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Stop default form submission
+            findAndAddByBarcode(searchInput.value.trim());
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!searchResults.contains(e.target)) searchResults.innerHTML = '';
+    });
+    
+    // ... (processBillBtn listener is the same) ...
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', fetchProducts);
+</script>
+{% endblock %}

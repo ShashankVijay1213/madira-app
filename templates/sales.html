@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Sales - {{ store_name }}{% endblock %}
+{% block content %}
+<h2 class="mb-4">Sales History for {{ store_name }}</h2>
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Sale ID</th>
+            <th>Date & Time</th>
+            <th>Total Items</th>
+            <th>Total Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sale in sales %}
+        <tr class="align-middle">
+            <td>{{ sale.id }}</td>
+            <td>{{ sale.sale_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>{{ sale.items|sum(attribute='quantity') }}</td>
+            <td>${{ "%.2f"|format(sale.total_amount) }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4" class="text-center">No sales have been recorded for this store yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
