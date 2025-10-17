@@ -1,5 +1,5 @@
-import os
 import click
+import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
@@ -8,8 +8,22 @@ import datetime
 
 # --- App and Database Configuration ---
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'a-very-secret-key-that-you-should-change'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///madira.db')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a-default-secret-key-for-local-dev')
+
+# Database Connection String for PythonAnywhere (MySQL)
+db_username = os.environ.get('DB_USERNAME')
+db_password = os.environ.get('DB_PASSWORD')
+db_hostname = os.environ.get('DB_HOSTNAME')
+db_name = os.environ.get('DB_NAME')
+
+if all([db_username, db_password, db_hostname, db_name]):
+    app.config['SQLALCHEMY_DATABASE_URI'] = (
+        f"mysql+mysqlconnector://{db_username}:{db_password}@{db_hostname}/{db_name}"
+    )
+else:
+    # Fallback for local development using SQLite
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///madira.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
